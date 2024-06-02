@@ -335,8 +335,9 @@ my $ip;
 if ( $use_remote_ip eq 'local' ) {
   # "parse" the host from what the user gave us
   my ($user, $host) = $userhost =~ /^((?:.*@)?)(.*)$/;
+  my $sshhost = `ssh -G $userhost | awk '/^hostname /{print \$NF}' | tr -d '[:space:]'`;
   # get list of addresses
-  my @res = resolvename( $host, 22, $family );
+  my @res = resolvename( $sshhost, 22, $family );
   # Use only the first address as the Mosh IP
   my $hostaddr = $res[0];
   if ( !defined $hostaddr ) {
@@ -347,7 +348,6 @@ if ( $use_remote_ip eq 'local' ) {
     die( "could not use address for $host" );
   }
   $ip = $addr_string;
-  $userhost = "$user$ip";
 }
 
 my $pid = open(my $pipe, "-|");
